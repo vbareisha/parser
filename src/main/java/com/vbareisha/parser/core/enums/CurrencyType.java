@@ -1,5 +1,5 @@
 package com.vbareisha.parser.core.enums;
 
-public enum ParserType {
-    SMS
+public enum CurrencyType {
+    USD, BYN
 }
