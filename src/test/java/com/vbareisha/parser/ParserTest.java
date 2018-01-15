@@ -1,7 +1,6 @@
 package com.vbareisha.parser;
 
 import com.vbareisha.parser.core.dto.SMSDto;
-import com.vbareisha.parser.core.enums.Operation;
 import com.vbareisha.parser.service.Parser;
 import com.vbareisha.parser.service.api.IParser;
 import org.junit.Assert;
@@ -88,6 +87,19 @@ public class ParserTest {
         sms.setOperation(DENIED_PAY);
         sms.setOperationCurrency(BYN);
         testCase.add(new TestData("KARTA:5351*9577 14/12/17 16:35 OTKAZANO OPLATA 23.01 BYN MTB INTERNET POS, PR. PARTIZANSKIY 6A, MINSK OSTATOK 0.00 BYN Spr.:5099999", sms));
+
+        sms = new SMSDto();
+        sms.setCurrencyType(BYN);
+        sms.setOperation(ADMISSION);
+        sms.setOperationCurrency(BYN);
+        sms.setRest(new BigDecimal(1823.22).setScale(2, BigDecimal.ROUND_HALF_UP));
+        sms.setConsumption(new BigDecimal(47.00).setScale(2, BigDecimal.ROUND_HALF_UP));
+        testCase.add(new TestData("KARTA:4177*1536\n" +
+                "12/01/18 17:57\n" +
+                "POPOLNENIE 47.00 BYN\n" +
+                "MTB INTERNET POS, PR. PARTIZANSKIY 6A, MINSK\n" +
+                "OSTATOK 1 823.22 BYN\n" +
+                "Spr.:\u200E5099999", sms));
         return testCase;
     }
 }

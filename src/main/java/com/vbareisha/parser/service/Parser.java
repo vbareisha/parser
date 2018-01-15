@@ -38,13 +38,13 @@ public class Parser implements IParser<SMSDto> {
                     item.setCurrencyType(getCurrencyFromtext(text, startIndex));
                     item.setRest(getSum(text, startIndex,false, item.getCurrencyType().name()));
                     item.setOperationCurrency(item.getCurrencyType());
+                    boolean revert = true;
                     // операция не прошла
                     if (text.indexOf("OTKAZANO NALICHNYE") > 0) {
                         startIndex = 0;
                         item.setOperation(DENIED);
                     } else if (text.indexOf("OTKAZANO OPLATA") > 0) {
                         startIndex = 0;
-                        //item.setRest(BigDecimal.ZERO);
                         item.setOperation(DENIED_PAY);
                     } else if (text.indexOf("NALICHNYE") > 0) {
                         startIndex = text.indexOf("NALICHNYE") + "NALICHNYE".length();
@@ -52,9 +52,13 @@ public class Parser implements IParser<SMSDto> {
                     } else if (text.indexOf("OPLATA") > 0) {
                         startIndex = text.indexOf("OPLATA") + "OPLATA".length();
                         item.setOperation(PAY);
+                    } else if (text.indexOf("POPOLNENIE") > 0) {
+                        startIndex = text.indexOf("POPOLNENIE") + "POPOLNENIE".length();
+                        item.setOperation(ADMISSION);
+                        revert = false;
                     }
                     item.setOperationCurrency(getCurrencyFromtext(text, startIndex));
-                    item.setConsumption(getSum(text, startIndex, true, item.getOperationCurrency().name()));
+                    item.setConsumption(getSum(text, startIndex, revert, item.getOperationCurrency().name()));
                 }
                 break;
             }
@@ -89,8 +93,10 @@ public class Parser implements IParser<SMSDto> {
 
     private CurrencyType getCurrencyFromtext(String text, int startIndex) {
         if (startIndex > 0) {
-            String[] values = text.substring(startIndex + 3).trim().split(" ");
-            return CurrencyType.valueOf(values[1].replaceAll("\\Q.\\E", ""));
+            String temp = text.substring(startIndex, startIndex + 15);
+            int indexDot = temp.indexOf(",");
+            if (indexDot == -1) indexDot = temp.indexOf(".");
+            return CurrencyType.valueOf(temp.substring(indexDot + 4, indexDot + 7).toUpperCase());
         }
         return BYN;
     }
