@@ -4,12 +4,13 @@ import com.vbareisha.parser.core.enums.CurrencyType;
 import com.vbareisha.parser.core.enums.Operation;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Objects;
 
 public class SMSDto {
     private BigDecimal consumption = BigDecimal.valueOf(0F).setScale(2, BigDecimal.ROUND_HALF_UP);
     private BigDecimal rest = BigDecimal.valueOf(0F).setScale(2, BigDecimal.ROUND_HALF_UP);
-    private LocalDateTime dateTime = null;
+    private Date dateTime = new Date();
     private CurrencyType currencyType;
     private CurrencyType operationCurrency;
     private Operation operation;
@@ -24,20 +25,12 @@ public class SMSDto {
         return rest;
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
     public void setConsumption(BigDecimal consumption) {
         this.consumption = consumption;
     }
 
     public void setRest(BigDecimal rest) {
         this.rest = rest;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
     }
 
     public CurrencyType getCurrencyType() {
@@ -72,6 +65,33 @@ public class SMSDto {
         this.operationCurrency = operationCurrency;
     }
 
+    public Date getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(Date dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SMSDto smsDto = (SMSDto) o;
+        return Objects.equals(consumption, smsDto.consumption) &&
+                Objects.equals(rest, smsDto.rest) &&
+                currencyType == smsDto.currencyType &&
+                operationCurrency == smsDto.operationCurrency &&
+                operation == smsDto.operation &&
+                Objects.equals(originalText, smsDto.originalText);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(consumption, rest, currencyType, operationCurrency, operation, originalText);
+    }
+
     @Override
     public String toString() {
         return "SMSDto{" +
@@ -83,33 +103,5 @@ public class SMSDto {
                 ", operation=" + operation +
                 ", originalText='" + originalText + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        SMSDto smsDto = (SMSDto) o;
-
-        if (consumption != null ? !consumption.equals(smsDto.consumption) : smsDto.consumption != null) return false;
-        if (rest != null ? !rest.equals(smsDto.rest) : smsDto.rest != null) return false;
-        if (dateTime != null ? !dateTime.equals(smsDto.dateTime) : smsDto.dateTime != null) return false;
-        if (currencyType != smsDto.currencyType) return false;
-        if (operationCurrency != smsDto.operationCurrency) return false;
-        if (operation != smsDto.operation) return false;
-        return originalText != null ? originalText.equals(smsDto.originalText) : smsDto.originalText == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = consumption != null ? consumption.hashCode() : 0;
-        result = 31 * result + (rest != null ? rest.hashCode() : 0);
-        result = 31 * result + (dateTime != null ? dateTime.hashCode() : 0);
-        result = 31 * result + (currencyType != null ? currencyType.hashCode() : 0);
-        result = 31 * result + (operationCurrency != null ? operationCurrency.hashCode() : 0);
-        result = 31 * result + (operation != null ? operation.hashCode() : 0);
-        result = 31 * result + (originalText != null ? originalText.hashCode() : 0);
-        return result;
     }
 }
