@@ -52,6 +52,10 @@ public class Parser implements IParser<SMSDto> {
                     } else if (text.indexOf("OPLATA") > 0) {
                         startIndex = text.indexOf("OPLATA") + "OPLATA".length();
                         item.setOperation(PAY);
+                    } else if (text.indexOf("OTMENA") > 0) {
+                        startIndex = text.indexOf("OTMENA") + "OTMENA".length();
+                        item.setOperation(CANCEL);
+                        revert = false;
                     } else if (text.indexOf("POPOLNENIE") > 0) {
                         startIndex = text.indexOf("POPOLNENIE") + "POPOLNENIE".length();
                         item.setOperation(ADMISSION);

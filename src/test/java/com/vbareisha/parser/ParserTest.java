@@ -100,6 +100,19 @@ public class ParserTest {
                 "MTB INTERNET POS, PR. PARTIZANSKIY 6A, MINSK\n" +
                 "OSTATOK 1 823.22 BYN\n" +
                 "Spr.:\u200E5099999", sms));
+
+        sms = new SMSDto();
+        sms.setCurrencyType(BYN);
+        sms.setOperation(CANCEL);
+        sms.setOperationCurrency(BYN);
+        sms.setRest(new BigDecimal(23.63).setScale(2, BigDecimal.ROUND_HALF_UP));
+        sms.setConsumption(new BigDecimal(3.43).setScale(2, BigDecimal.ROUND_HALF_UP));
+        testCase.add(new TestData("KARTA:4177*1536\n" +
+                "20/08/17 11:57\n" +
+                "OTMENA 3.43 BYN\n" +
+                "PT SHOP \"MASYUKOVSCHINA\", , MINSK\n" +
+                "OSTATOK 23.63 BYN\n" +
+                "Spr.:5099999", sms));
         return testCase;
     }
 }

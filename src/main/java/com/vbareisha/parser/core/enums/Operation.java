@@ -6,7 +6,8 @@ public enum Operation {
     GET_CASH("Снятие наличных."),
     ADMISSION("Поступление на карту."),
     WRITEOFF("Списание средств."),
-    PAY("Оплата.");
+    PAY("Оплата."),
+    CANCEL("Отмена.");
 
     public String description;
 
