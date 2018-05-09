@@ -113,6 +113,20 @@ public class ParserTest {
                 "PT SHOP \"MASYUKOVSCHINA\", , MINSK\n" +
                 "OSTATOK 23.63 BYN\n" +
                 "Spr.:5099999", sms));
+
+        sms = new SMSDto();
+        sms.setCurrencyType(BYN);
+        sms.setOperation(PAY);
+        sms.setOperationCurrency(BYN);
+        sms.setRest(new BigDecimal(212.69).setScale(2, BigDecimal.ROUND_HALF_UP));
+        sms.setConsumption(new BigDecimal(-7.50).setScale(2, BigDecimal.ROUND_HALF_UP));
+        testCase.add(new TestData("KARTA:5351*9577\n" +
+                "04/10/17 19:55\n" +
+                "OPLATA 7.50 BYN\n" +
+                "TO, , MINSK\n" +
+                "OSTATOK 212.69 BYN\n" +
+                "KOD AVT. 028368\n" +
+                "Spr.:5099999", sms));
         return testCase;
     }
 }

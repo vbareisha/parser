@@ -98,8 +98,8 @@ public class Parser implements IParser<SMSDto> {
     private CurrencyType getCurrencyFromtext(String text, int startIndex) {
         if (startIndex > 0) {
             String temp = text.substring(startIndex, startIndex + 15);
-            int indexDot = temp.indexOf(",");
-            if (indexDot == -1) indexDot = temp.indexOf(".");
+            temp = temp.replaceAll(",", ".");
+            int indexDot = temp.indexOf(".");
             return CurrencyType.valueOf(temp.substring(indexDot + 4, indexDot + 7).toUpperCase());
         }
         return BYN;
