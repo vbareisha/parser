@@ -7,6 +7,7 @@ import com.vbareisha.parser.core.exception.NotFoundParseTypeException;
 import com.vbareisha.parser.service.api.IParser;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import static com.vbareisha.parser.core.enums.CurrencyType.BYN;
 import static com.vbareisha.parser.core.enums.Operation.*;
@@ -14,12 +15,13 @@ import static com.vbareisha.parser.core.enums.Operation.*;
 public class Parser implements IParser<SMSDto> {
 
     @Override
-    public SMSDto getSumFromText(String text, ParserType type) {
+    public SMSDto parse(String text, ParserType type) {
         SMSDto item =  new SMSDto();
         switch (type) {
-            case SMS: {
+            case SMS_MTBANK: {
                 int startIndex;
                 item.setOriginalText(text);
+                text = text.replaceAll("\n", " ").trim();
                 // Поступления на счет
                 if (text.indexOf(TextTemplates.ADMISSION.template) > 0) {
                     startIndex = text.indexOf(TextTemplates.ADMISSION.template) + TextTemplates.ADMISSION.template.length();
@@ -27,12 +29,14 @@ public class Parser implements IParser<SMSDto> {
                     item.setConsumption(getSum(text, startIndex, false, item.getCurrencyType().name()));
                     item.setOperation(ADMISSION);
                     item.setOperationCurrency(item.getCurrencyType());
+                    item.setDateTime(getDateFromText(text));
                 } else if (text.indexOf(TextTemplates.WRITEOFF.template) > 0) { // Списание средств
                     startIndex = text.indexOf(TextTemplates.WRITEOFF.template) + TextTemplates.WRITEOFF.template.length();
                     item.setCurrencyType(getCurrencyFromtext(text, startIndex));
                     item.setConsumption(getSum(text, startIndex, true, item.getCurrencyType().name()));
                     item.setOperation(WRITEOFF);
                     item.setOperationCurrency(item.getCurrencyType());
+                    item.setDateTime(getDateFromText(text));
                 } else if (text.indexOf(TextTemplates.REST.template) > 0) { // Виды оплаты
                     startIndex = text.indexOf(TextTemplates.REST.template) + TextTemplates.REST.template.length();
                     item.setCurrencyType(getCurrencyFromtext(text, startIndex));
@@ -63,6 +67,7 @@ public class Parser implements IParser<SMSDto> {
                     }
                     item.setOperationCurrency(getCurrencyFromtext(text, startIndex));
                     item.setConsumption(getSum(text, startIndex, revert, item.getOperationCurrency().name()));
+                    item.setDateTime(getDateFromText(text));
                 }
                 break;
             }
@@ -105,6 +110,49 @@ public class Parser implements IParser<SMSDto> {
         return BYN;
     }
 
+    /**
+     * Получить дату проведения операции из смс, если даты нет, вернуть текущую дату
+     * @param text текст смс
+     * @return - дата проведения операции
+     */
+    private Date getDateFromText(final String text) {
+        Date result;
+        String temp = text;
+        if (text.startsWith(StartTextTemplates.RESPECT.template)) {
+            result = null;
+        } else if (text.startsWith(StartTextTemplates.CARD.template)) {
+            for (int i = 0; i < 3; i++) {
+                temp = takeTextFromLeftToSpace(temp);
+            }
+            result = getDate(temp, false);
+        } else if (text.startsWith(StartTextTemplates.SALARY_CARD.template)) {
+            temp = takeTextFromLeftToSpace(temp);
+            result = getDate(temp, true);
+        } else {
+            throw new NotFoundParseTypeException("Start template is not found in this text!");
+        }
+
+        return result;
+    }
+
+    private String takeTextFromLeftToSpace(String temp) {
+        temp = temp.substring(temp.indexOf(" ") + 1, temp.length());
+        return temp;
+    }
+
+    private Date getDate(String temp, boolean includeTime) {
+        Date result;
+        String dateInString;
+        if (!includeTime) {
+            dateInString = temp.substring(0, temp.indexOf(" "));
+        } else {
+            dateInString = temp.substring(0, temp.indexOf(" ", temp.indexOf(" ") + 1));
+        }
+
+        result = new Date(dateInString);
+        return result;
+    }
+
     private enum TextTemplates {
         ADMISSION("postupilo"),
         WRITEOFF("SPISANO"),
@@ -113,6 +161,18 @@ public class Parser implements IParser<SMSDto> {
         public String template;
 
         TextTemplates(String template) {
+            this.template = template;
+        }
+    }
+
+    private enum StartTextTemplates {
+        RESPECT("Uvazhaemyj"),
+        CARD("ZP KARTA"),
+        SALARY_CARD("KARTA:");
+
+        public String template;
+
+        StartTextTemplates(String template) {
             this.template = template;
         }
     }

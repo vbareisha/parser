@@ -6,5 +6,5 @@ import com.vbareisha.parser.core.enums.ParserType;
  * Parsing text by template
  */
 public interface IParser<T> {
-    T getSumFromText(String text, ParserType type);
+    T parse(String text, ParserType type);
 }
